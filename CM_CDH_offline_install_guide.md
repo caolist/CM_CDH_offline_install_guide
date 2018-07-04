@@ -111,7 +111,7 @@
 ### 配置NTP服务（所有节点）
 
 **集群中所有主机必须保持时间同步，如果时间相差较大会引起各种问题。 具体思路如下：**
-** master 节点作为 ntp 服务器与外界对时中心同步时间，随后对所有 datanode 节点提供时间同步服务。**
+**master 节点作为 ntp 服务器与外界对时中心同步时间，随后对所有 datanode 节点提供时间同步服务。**
 **所有 datanode 节点以 master 节点为基础同步时间。**
 
 查看是否安装ntp
@@ -258,14 +258,158 @@
 先查看是否有 MySQL：
 
     rpm -qa | grep mysql
+    rpm -qa | grep postfix
+    rpm -qa | grep mariadb
 
-如果有，执行 rpm -e --nodeps 删除
+如果有，执行 rpm -e --nodeps 或者 rpm -ev 进行删除
 
+mysql 5.7 包的安装顺序为(RPM方式)：
+mysql-community-common-5.7.9-1.el7.x86_64.rpm
+mysql-community-libs-5.7.9-1.el7.x86_64.rpm
+mysql-community-libs-compat-5.7.9-1.el7.x86_64.rpm
+mysql-community-client-5.7.9-1.el7.x86_64.rpm
+mysql-community-server-5.7.9-1.el7.x86_64.rpm
+
+使用 rpm -ivh *.rpm 和 tar -xvf *.tar 命令进行安装
+
+安装mysql之后，启动
+
+    service mysqld start
+
+取得root默认密码
+
+    grep "password" /var/log/mysqld.log
+    mysql -u root -p
+    
+安装之后需要先修改密码
+
+修改密码规则为长度
+
+    mysql> set global validate_password_policy=0;
+
+修改密码长度为最小4位
+
+    mysql> set global validate_password_length=1;
+
+修改初始密码为 root
+
+    mysql> ALTER USER USER() IDENTIFIED BY "root";
+
+设置表名大小写不敏感
+
+    vi etc/my.cnf
+    
+设置
+
+    [mysqld]
+    lower_case_table_names=1 //0为敏感
+
+之后输入
+
+    mysql -u root -pxxxx（xxxx为密码）
+
+进入 MySQL 命令行
+
+设置 MySQL 密码强度规则，允许密码为三位字母
+
+    mysql> set global validate_password_policy=0;  
+    Query OK, 0 rows affected (0.05 sec)  
+       
+    mysql> set global validate_password_mixed_case_count=0;  
+    Query OK, 0 rows affected (0.00 sec)  
+      
+    mysql> set global validate_password_number_count=3;  
+    Query OK, 0 rows affected (0.00 sec)  
+      
+    mysql> set global validate_password_special_char_count=0;  
+    Query OK, 0 rows affected (0.00 sec)  
+      
+    mysql> set global validate_password_length=3;  
+    Query OK, 0 rows affected (0.00 sec) 
 
 ## 安装 Cloudera Manager 5 和 CDH5
 
+在 MySQL 中新建 scm 用户和数据库
+
+    mysql> CREATE DATABASE SCM CHARACTER SET UTF8; 
+    mysql> CREATE USER 'scm'@'%'IDENTIFIED BY 'scm';
+    mysql> GRANT ALL PRIVILEGES ON *.* TO 'scm'@'%';
+    mysql> FLUSH PRIVILEGES;
+
 ### 安装 Cloudera Manager Server 和 Agent
 
+主节点解压安装 cm5.14.0-centos7.tar.gz 到 /opt 文件夹
+
+    tar xzvf cm5.14.0-centos7.tar.gz
+    
+将解压后的 cm-5.14.0 和 cloudera 目录放到 /opt 目录下
+
+下载 MySQL 驱动 tar 包解压到任意目录，将 MySQL 驱动 mysql-connector-java-5.1.46-bin.jar 复制到 /opt/cm-5.14.0/share/cmf/lib 目录下
+
+修改 /opt/cm-5.14.0/etc/cloudera-scm-agent/config.ini 中的 server_host 为主节点的主机名
+
+    server_host=master
+
+在主节点初始化CM5的数据库：
+
+    /opt/cm-5.14.0/share/cmf/schema/scm_prepare_database.sh mysql cm -hlocalhost -uroot -proot --scm-host localhost scm scm scm
+
+同步配置到其他节点
+
+    scp -r /opt/cm-5.14.0 root@slave01:/opt/
+    
+在所有节点创建 cloudera-scm 用户
+
+    useradd --system --home=/opt/cm-5.14.0/run/cloudera-scm-server/ --no-create-home --shell=/bin/false --comment "Cloudera SCM User" cloudera-scm
+
+准备Parcels，用以安装CDH5
+
+将CHD5相关的Parcel包放到主节点的/opt/cloudera/parcel-repo/目录中（parcel-repo需要手动创建）。
+
+相关的文件如下：
+
+    CDH-5.14.0-1.cdh5.14.0.p0.24-el7.parcel
+    CDH-5.14.0-1.cdh5.14.0.p0.24-el7.parcel.sha1
+    manifest.json
+
+最后将 CDH-5.14.0-1.cdh5.14.0.p0.24-el7.parcel.sha1，
+重命名为 CDH-5.14.0-1.cdh5.14.0.p0.24-el7.parcel.sha，
+这点必须注意，否则系统会重新下载 CDH-5.14.0-1.cdh5.14.0.p0.24-el7.parcel 文件
+
+相关启动脚本
+
+通过：
+
+    /opt/cm-5.14.0/etc/init.d/cloudera-scm-server start 
+    
+启动服务端。
+
+通过：
+
+    tail -f /opt/cm-5.14.0/log/cloudera-scm-agent/cloudera-scm-server.log 
+    
+查看server日志。
+
+通过：
+
+    /opt/cm-5.14.0/etc/init.d/cloudera-scm-agent start 
+    
+启动Agent服务。
+
+通过：
+
+    tail -f /opt/cm-5.14.0/log/cloudera-scm-agent/cloudera-scm-agent.log 
+    
+查看agent日志。
+
+我们启动的其实是个 service 脚本，需要停止服务将以上的start参数改为 stop 就可以了，重启是 restart。
+
+Cloudera Manager Server 和 Agent 都启动以后，就可以进行CDH5的安装配置了。
+这时可以通过浏览器访问主节点的 7180 端口测试一下了
+（由于 CM Server 的启动需要花点时间，这里可能要等待一会才能访问），默认的用户名和密码均为 admin 。
+
 ### 安装配置 CDH5
+
+
 
 ### 测试
