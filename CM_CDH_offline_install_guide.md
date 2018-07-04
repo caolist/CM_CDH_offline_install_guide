@@ -362,9 +362,9 @@ mysql-community-server-5.7.9-1.el7.x86_64.rpm
 
     useradd --system --home=/opt/cm-5.14.0/run/cloudera-scm-server/ --no-create-home --shell=/bin/false --comment "Cloudera SCM User" cloudera-scm
 
-准备Parcels，用以安装CDH5
+准备 Parcels，用以安装CDH5
 
-将CHD5相关的Parcel包放到主节点的/opt/cloudera/parcel-repo/目录中（parcel-repo需要手动创建）。
+将 CHD5 相关的 Parcel 包放到主节点的 /opt/cloudera/parcel-repo/ 目录中（parcel-repo 需要手动创建）。
 
 相关的文件如下：
 
