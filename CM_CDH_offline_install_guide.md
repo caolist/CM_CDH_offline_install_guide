@@ -1,6 +1,7 @@
 # 离线安装Cloudera Manager 5和CDH5(5.1.4) 指南
 
 ## 系统环境
+
 * 操作系统：CentOS Linux release 7.2.1511
 * Cloudera Manager：5.1.4
 * CDH: 5.1.4
@@ -8,9 +9,11 @@
 ## 安装包
 
 ### Cloudera Manager 5
+
 * cm5.14.0-centos7.tar.gz
 
 ### CDH5
+
 * CDH-5.14.0-1.cdh5.14.0.p0.24-el7.parcel
 * CDH-5.14.0-1.cdh5.14.0.p0.24-el7.parcel.sha1
 * manifest.json
@@ -19,7 +22,7 @@
 
 ### 网络配置(所有节点)
 
-修改hostname：
+修改 hostname：
 
     hostnamectl set-hostname mater
 
@@ -27,7 +30,7 @@
 
     vi /etc/hostname
 
-接着修改ip与主机名的对应关系：
+接着修改 ip 与主机名的对应关系：
 
     vi /etc/hosts
 
@@ -108,8 +111,8 @@
 ### 配置NTP服务（所有节点）
 
 **集群中所有主机必须保持时间同步，如果时间相差较大会引起各种问题。 具体思路如下：**
-**master节点作为ntp服务器与外界对时中心同步时间，随后对所有datanode节点提供时间同步服务。**
-**所有datanode节点以master节点为基础同步时间。**
+** master 节点作为 ntp 服务器与外界对时中心同步时间，随后对所有 datanode 节点提供时间同步服务。**
+**所有 datanode 节点以 master 节点为基础同步时间。**
 
 查看是否安装ntp
 
@@ -137,7 +140,7 @@
 
     systemctl status ntpd.service
 
-#### 配置ntp服务器端（主节点）
+#### 配置 ntp 服务器端（主节点）
 
 打开 /etc/ntp.conf 配置文件
 
@@ -156,7 +159,7 @@
     server 127.127.1.0  # local clock
     fudge 127.127.1.0  stratum 10
 
-修改完成后重启ntpd服务
+修改完成后重启 ntpd 服务
 
 检查是否成功，用 ntpstat 命令查看同步状态，出现以下状态代表启动成功：
 
@@ -164,13 +167,13 @@
        time correct to within 133 ms
        polling server every 64 s
 
-查看ntp服务是否能够被同步：
+查看 ntp 服务是否能够被同步：
 
     remote           refid      st t when poll reach   delay   offset  jitter
     ==============================================================================
     LOCAL(0)        .LOCL.          10 l   6h   64    0    0.000    0.000   0.000
 
-显示为“LOCAL”，表示成功。如果没有任何显示，客户端将无法同步。
+显示为 “LOCAL”，表示成功。如果没有任何显示，客户端将无法同步。
 
 #### 配置ntp客户端（所有datanode节点）
 
@@ -194,7 +197,7 @@
     server 127.127.1.0  # local clock
     fudge 127.127.1.0  stratum 10
 
-修改完成后重启ntpd服务
+修改完成后重启 ntpd 服务
 
 使用 ntpdate 手动同步一下时间：
 
@@ -208,7 +211,7 @@
 
 ### 安装Oracle的Java（所有节点）
 
-**目前版本的Linux系统都自带有OpenJDK ，需要卸载，使用自己的jdk。**
+**目前版本的 Linux 系统都自带有 OpenJDK，需要卸载，使用自己的jdk。**
 
 使用 rpm -qa | grep java 查看位置
 
@@ -241,10 +244,10 @@
 
 进行刷新，使立即生效
 
-#### 拷贝jdk和环境变量到其他机器
+#### 拷贝 jdk 和环境变量到其他机器
 
-    scp -r /usr/local/jdk1.8.0_151  root@slave01:/usr/local
-    scp -r /etc/profile  root@slave01:/etc/profile
+    scp -r /usr/local/jdk1.8.0_151 root@slave01:/usr/local
+    scp -r /etc/profile root@slave01:/etc/profile
 
 每个机器都要再刷新一下环境变量：
 
@@ -252,16 +255,16 @@
 
 ### 安装配置MySql（主节点）
 
-先查看是否有MySQL：
+先查看是否有 MySQL：
 
     rpm -qa | grep mysql
 
 如果有，执行 rpm -e --nodeps 删除
 
-## 安装Cloudera Manager 5和CDH5
+## 安装 Cloudera Manager 5 和 CDH5
 
-### 安装Cloudera Manager Server 和Agent
+### 安装 Cloudera Manager Server 和 Agent
 
-### 安装配置CDH5
+### 安装配置 CDH5
 
 ### 测试
