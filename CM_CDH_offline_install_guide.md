@@ -335,6 +335,19 @@ mysql-community-server-5.7.9-1.el7.x86_64.rpm
     mysql> CREATE USER 'scm'@'%'IDENTIFIED BY 'scm';
     mysql> GRANT ALL PRIVILEGES ON *.* TO 'scm'@'%';
     mysql> FLUSH PRIVILEGES;
+	
+新建 hive 数据库
+
+    mysql> create database hive DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+	
+新建 activity monitor 数据库
+
+    mysql> create database amon DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+	
+设置 root 用户授权访问以上所有的数据库：
+
+    mysql> grant all privileges on *.* to 'root'@'%' identified by 'root' with grant option;
+    mysql> flush privileges;
 
 ### 安装 Cloudera Manager Server 和 Agent
 
