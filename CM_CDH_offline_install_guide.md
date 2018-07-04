@@ -261,6 +261,7 @@
 
 如果有，执行 rpm -e --nodeps 删除
 
+
 ## 安装 Cloudera Manager 5 和 CDH5
 
 ### 安装 Cloudera Manager Server 和 Agent
