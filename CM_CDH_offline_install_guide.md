@@ -233,12 +233,10 @@
 
 按 Shift+g 到最后一行添加路径
 
-    export JAVA_HOME=/usr/lib/jvm/jdk1.8.0_131
-    export JRE_HOME=${JAVA_HOME}/jre
-    export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
-    export PATH=${JAVA_HOME}/bin:$PATH
+    export JAVA_HOME=/usr/local/jdk1.8.0_151
+    export PATH=$PATH:{JAVA_HOME}/bin:
     
-或者这样
+或者这样(rpm 安装)
 
     #JAVA_SET
     export JAVA_HOME=/usr/java/latest
