@@ -237,6 +237,15 @@
     export JRE_HOME=${JAVA_HOME}/jre
     export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
     export PATH=${JAVA_HOME}/bin:$PATH
+    
+或者这样
+
+    #JAVA_SET
+    export JAVA_HOME=/usr/java/latest
+    export JAVA_BIN=/usr/java/latest/bin
+    export PATH=$PATH:$JAVA_HOME/bin
+    export CLASSPATH=:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+    export JAVA_HOME JAVA_BIN PATH CLASSPATH
 
 然后
 
