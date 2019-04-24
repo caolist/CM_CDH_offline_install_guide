@@ -167,7 +167,7 @@
        time correct to within 133 ms
        polling server every 64 s
 
-查看 ntp 服务是否能够被同步：
+使用 ntpq -p 查看 ntp 服务是否能够被同步：
 
     remote           refid      st t when poll reach   delay   offset  jitter
     ==============================================================================
